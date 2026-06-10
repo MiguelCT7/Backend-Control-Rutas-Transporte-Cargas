@@ -22,6 +22,7 @@ class ViajeRoutes
 
         $app->group('/api/viajes', function ($group) {
             $group->get('', [ViajeController::class, 'listar']);
+            $group->get('/reporte', [ViajeController::class, 'reporte']);
             $group->get('/historial/{programacion_id}', [ViajeController::class, 'historial']);
             $group->post('/iniciar', [ViajeController::class, 'iniciar']);
             $group->post('/estado', [ViajeController::class, 'actualizarEstado']);

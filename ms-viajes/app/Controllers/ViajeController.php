@@ -218,6 +218,76 @@ class ViajeController
     }
 
     /**
+ * Genera un reporte agrupado de viajes por estado.
+ */
+     public function reporte(Request $request, Response $response): Response
+        {
+            $params = $request->getQueryParams();
+
+            // Filtro opcional por rango de fechas
+            $desde = $params['desde'] ?? null;
+            $hasta = $params['hasta'] ?? null;
+
+            $query = SeguimientoViaje::query();
+
+            if ($desde) {
+                $query->where('fecha', '>=', $desde);
+            }
+
+            if ($hasta) {
+                $query->where('fecha', '<=', $hasta);
+            }
+
+            $todos = $query->get();
+
+            // Agrupar por programacion_viaje_id y tomar el último estado
+            $ultimosEstados = $todos->groupBy('programacion_viaje_id')
+                ->map(function ($registros) {
+                    return $registros->sortByDesc('fecha')
+                        ->sortByDesc('hora')
+                        ->first()
+                        ->estado;
+                });
+
+            // Contar por estado
+            $conteos = [
+                'programado'  => 0,
+                'en_transito' => 0,
+                'retrasado'   => 0,
+                'finalizado'  => 0,
+                'cancelado'   => 0,
+            ];
+
+            foreach ($ultimosEstados as $estado) {
+                if (isset($conteos[$estado])) {
+                    $conteos[$estado]++;
+                }
+            }
+
+            $total = array_sum($conteos);
+
+            // Calcular porcentajes
+            $reporte = [];
+            foreach ($conteos as $estado => $cantidad) {
+                $reporte[] = [
+                    'estado'      => $estado,
+                    'cantidad'    => $cantidad,
+                    'porcentaje'  => $total > 0
+                        ? round(($cantidad / $total) * 100, 1)
+                        : 0,
+                ];
+            }
+
+            return $this->responder($response, [
+                'success'  => true,
+                'total'    => $total,
+                'desde'    => $desde,
+                'hasta'    => $hasta,
+                'reporte'  => $reporte,
+            ]);
+        }
+
+    /**
      * Construye y devuelve una respuesta JSON.
      */
     private function responder(Response $response, array $datos, int $codigo = 200): Response
