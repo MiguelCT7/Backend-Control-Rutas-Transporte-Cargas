@@ -182,6 +182,41 @@ class ConductorController
     }
 
     /**
+ * Lista conductores con licencia próxima a vencer en los próximos 30 días.
+ */
+        public function licenciasPorVencer(Request $request, Response $response): Response
+        {
+            $params = $request->getQueryParams();
+            $dias   = isset($params['dias']) ? (int) $params['dias'] : 30;
+
+            $hoy     = date('Y-m-d');
+            $limite  = date('Y-m-d', strtotime("+{$dias} days"));
+
+            $conductores = Conductor::where('fecha_vencimiento_licencia', '>=', $hoy)
+                ->where('fecha_vencimiento_licencia', '<=', $limite)
+                ->where('estado', '!=', 'inactivo')
+                ->orderBy('fecha_vencimiento_licencia', 'asc')
+                ->get()
+                ->map(function ($conductor) use ($hoy) {
+                    $vencimiento  = new \DateTime($conductor->fecha_vencimiento_licencia);
+                    $hoyDate      = new \DateTime($hoy);
+                    $diasRestantes = (int) $hoyDate->diff($vencimiento)->days;
+
+                    $conductor->dias_restantes = $diasRestantes;
+                    $conductor->alerta         = $diasRestantes <= 7 ? 'critica' : 'advertencia';
+
+                    return $conductor;
+                });
+
+            return $this->responder($response, [
+                'success'        => true,
+                'dias_evaluados' => $dias,
+                'total'          => $conductores->count(),
+                'data'           => $conductores,
+            ]);
+        }
+
+    /**
      * Valida los campos obligatorios del conductor.
      */
     private function validarCampos(array $datos): array
