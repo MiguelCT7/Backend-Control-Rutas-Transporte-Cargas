@@ -51,7 +51,7 @@ class ProgramacionController
     }
 
     /**
-     * Crea una nueva programación de viaje.
+     * Crea una nueva programación validando conflictos de conductor y vehículo.
      */
     public function crear(Request $request, Response $response): Response
     {
@@ -66,11 +66,40 @@ class ProgramacionController
             ], 422);
         }
 
+        // Verificar que la ruta exista
         if (!Ruta::find((int) $datos['ruta_id'])) {
             return $this->responder($response, [
                 'success' => false,
                 'mensaje' => 'La ruta seleccionada no existe.',
             ], 404);
+        }
+
+        // Validar conflicto de conductor en la misma fecha
+        $conflictoConductor = $this->existeConflicto(
+            'conductor_id',
+            (int) $datos['conductor_id'],
+            $datos['fecha_salida']
+        );
+
+        if ($conflictoConductor) {
+            return $this->responder($response, [
+                'success' => false,
+                'mensaje' => 'El conductor ya tiene un viaje programado para esa fecha.',
+            ], 409);
+        }
+
+        // Validar conflicto de vehículo en la misma fecha
+        $conflictoVehiculo = $this->existeConflicto(
+            'vehiculo_id',
+            (int) $datos['vehiculo_id'],
+            $datos['fecha_salida']
+        );
+
+        if ($conflictoVehiculo) {
+            return $this->responder($response, [
+                'success' => false,
+                'mensaje' => 'El vehículo ya tiene un viaje programado para esa fecha.',
+            ], 409);
         }
 
         $programacion = ProgramacionViaje::create([
@@ -107,6 +136,36 @@ class ProgramacionController
 
         $datos = $request->getParsedBody();
 
+        // Validar conflicto de conductor si se cambia
+        if (!empty($datos['conductor_id']) || !empty($datos['fecha_salida'])) {
+            $conductorId = (int) ($datos['conductor_id'] ?? $programacion->conductor_id);
+            $fecha       = $datos['fecha_salida'] ?? $programacion->fecha_salida;
+
+            $conflicto = $this->existeConflicto('conductor_id', $conductorId, $fecha, $programacion->id);
+
+            if ($conflicto) {
+                return $this->responder($response, [
+                    'success' => false,
+                    'mensaje' => 'El conductor ya tiene un viaje programado para esa fecha.',
+                ], 409);
+            }
+        }
+
+        // Validar conflicto de vehículo si se cambia
+        if (!empty($datos['vehiculo_id']) || !empty($datos['fecha_salida'])) {
+            $vehiculoId = (int) ($datos['vehiculo_id'] ?? $programacion->vehiculo_id);
+            $fecha      = $datos['fecha_salida'] ?? $programacion->fecha_salida;
+
+            $conflicto = $this->existeConflicto('vehiculo_id', $vehiculoId, $fecha, $programacion->id);
+
+            if ($conflicto) {
+                return $this->responder($response, [
+                    'success' => false,
+                    'mensaje' => 'El vehículo ya tiene un viaje programado para esa fecha.',
+                ], 409);
+            }
+        }
+
         if (isset($datos['fecha_salida']))           $programacion->fecha_salida           = $datos['fecha_salida'];
         if (isset($datos['hora_salida']))             $programacion->hora_salida             = $datos['hora_salida'];
         if (isset($datos['fecha_estimada_llegada'])) $programacion->fecha_estimada_llegada  = $datos['fecha_estimada_llegada'];
@@ -121,6 +180,26 @@ class ProgramacionController
             'mensaje' => 'Programación actualizada correctamente.',
             'data'    => $programacion->load('ruta'),
         ]);
+    }
+
+    /**
+     * Verifica si existe un conflicto de conductor o vehículo en una fecha.
+     */
+    private function existeConflicto(
+        string $campo,
+        int $valor,
+        string $fecha,
+        ?int $excluirId = null
+    ): bool {
+        $query = ProgramacionViaje::where($campo, $valor)
+            ->where('fecha_salida', $fecha)
+            ->whereNotIn('estado', ['cancelado', 'finalizado']);
+
+        if ($excluirId !== null) {
+            $query->where('id', '!=', $excluirId);
+        }
+
+        return $query->exists();
     }
 
     /**
