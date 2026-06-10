@@ -120,6 +120,67 @@ class AuthController
             ],
         ]);
     }
+    /**
+ * Permite al usuario autenticado cambiar su contraseña.
+ */
+        public function cambiarContrasena(Request $request, Response $response): Response
+        {
+            $token = $this->extraerToken($request);
+
+            if (!$token) {
+                return $this->responder($response, [
+                    'success' => false,
+                    'mensaje' => 'Token no proporcionado.',
+                ], 400);
+            }
+
+            $usuario = Usuario::buscarPorToken($token);
+
+            if (!$usuario) {
+                return $this->responder($response, [
+                    'success' => false,
+                    'mensaje' => 'Sesión inválida o expirada.',
+                ], 401);
+            }
+
+            $datos = $request->getParsedBody();
+
+            if (empty($datos['contrasena_actual']) || empty($datos['contrasena_nueva'])) {
+                return $this->responder($response, [
+                    'success' => false,
+                    'mensaje' => 'La contraseña actual y la nueva son requeridas.',
+                ], 400);
+            }
+
+            if (!$usuario->verificarContrasena($datos['contrasena_actual'])) {
+                return $this->responder($response, [
+                    'success' => false,
+                    'mensaje' => 'La contraseña actual es incorrecta.',
+                ], 401);
+            }
+
+            if (strlen($datos['contrasena_nueva']) < 4) {
+                return $this->responder($response, [
+                    'success' => false,
+                    'mensaje' => 'La nueva contraseña debe tener al menos 4 caracteres.',
+                ], 422);
+            }
+
+            if ($datos['contrasena_actual'] === $datos['contrasena_nueva']) {
+                return $this->responder($response, [
+                    'success' => false,
+                    'mensaje' => 'La nueva contraseña debe ser diferente a la actual.',
+                ], 422);
+            }
+
+            $usuario->contrasena = trim($datos['contrasena_nueva']);
+            $usuario->save();
+
+            return $this->responder($response, [
+                'success' => true,
+                'mensaje' => 'Contraseña actualizada correctamente.',
+            ]);
+        }
 
     /**
      * Extrae el token del header Authorization.

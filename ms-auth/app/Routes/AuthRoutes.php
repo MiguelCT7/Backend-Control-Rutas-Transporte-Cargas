@@ -16,6 +16,11 @@ class AuthRoutes
         $app->post('/api/auth/logout', [AuthController::class, 'logout']);
         $app->post('/api/auth/validar', [AuthController::class, 'validar']);
 
+        // Cambio de contraseña (requiere token)
+        $app->post('/api/auth/cambiar-contrasena',
+            [AuthController::class, 'cambiarContrasena']
+        );
+
         $app->get('/api/auth/health', function ($request, $response) {
             $response->getBody()->write(json_encode([
                 'success'       => true,
