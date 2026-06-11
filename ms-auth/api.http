@@ -1,0 +1,85 @@
+### Variables
+@base = http://127.0.0.1:8001
+
+###############################################
+# AUTH
+###############################################
+
+### Health check
+GET {{base}}/api/auth/health
+Content-Type: application/json
+
+###
+
+### Iniciar sesión
+POST {{base}}/api/auth/login
+Content-Type: application/json
+
+{
+    "usuario": "admin",
+    "contrasena": "1234"
+}
+
+###
+
+### Validar token
+POST {{base}}/api/auth/validar
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+###
+
+### Cerrar sesión
+POST {{base}}/api/auth/logout
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+###
+
+### Cambiar contraseña
+POST {{base}}/api/auth/cambiar-contrasena
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+{
+    "contrasena_actual": "1234",
+    "contrasena_nueva": "5678"
+}
+
+###############################################
+# USUARIOS
+###############################################
+
+### Listar usuarios
+GET {{base}}/api/usuarios
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+###
+
+### Crear usuario
+POST {{base}}/api/usuarios
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+{
+    "nombre": "Carlos Ramirez",
+    "correo": "carlos@logitrans.com",
+    "usuario": "carlos123",
+    "contrasena": "1234",
+    "rol": "operador"
+}
+
+###
+
+### Cambiar estado usuario
+PATCH {{base}}/api/usuarios/1/estado
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+###
+
+### Eliminar usuario
+DELETE {{base}}/api/usuarios/1
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI

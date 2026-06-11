@@ -1,0 +1,94 @@
+### Variables
+@base = http://127.0.0.1:8002
+
+###############################################
+# CONDUCTORES
+###############################################
+
+### Health check
+GET {{base}}/api/conductores/health
+Content-Type: application/json
+
+###
+
+### Listar todos los conductores
+GET {{base}}/api/conductores
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+###
+
+### Buscar conductor por documento
+GET {{base}}/api/conductores?documento=1000123456
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+###
+
+### Filtrar conductores por estado
+GET {{base}}/api/conductores?estado=disponible
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+###
+
+### Obtener conductor por ID
+GET {{base}}/api/conductores/1
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+###
+
+### Crear conductor
+POST {{base}}/api/conductores
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+{
+    "nombres": "Carlos",
+    "apellidos": "Ramirez",
+    "documento": "1000123456",
+    "telefono": "3001234567",
+    "correo": "carlos@logitrans.com",
+    "numero_licencia": "LIC-001",
+    "categoria_licencia": "C2",
+    "fecha_vencimiento_licencia": "2026-12-31",
+    "estado": "disponible"
+}
+
+###
+
+### Actualizar conductor
+PUT {{base}}/api/conductores/1
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+{
+    "telefono": "3009876543",
+    "estado": "disponible"
+}
+
+###
+
+### Cambiar estado conductor
+PATCH {{base}}/api/conductores/1/estado
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+{
+    "estado": "en_ruta"
+}
+
+###
+
+### Eliminar conductor
+DELETE {{base}}/api/conductores/1
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+###
+
+### Licencias próximas a vencer (30 días)
+GET {{base}}/api/conductores/licencias-por-vencer?dias=30
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI

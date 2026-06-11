@@ -1,0 +1,101 @@
+### Variables
+@base = http://127.0.0.1:8005
+
+###############################################
+# VIAJES Y SEGUIMIENTO
+###############################################
+
+### Health check
+GET {{base}}/api/viajes/health
+Content-Type: application/json
+
+###
+
+### Listar todos los seguimientos
+GET {{base}}/api/viajes
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+###
+
+### Filtrar por programación
+GET {{base}}/api/viajes?programacion_id=1
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+###
+
+### Filtrar por estado
+GET {{base}}/api/viajes?estado=en_transito
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+###
+
+### Obtener historial de un viaje
+GET {{base}}/api/viajes/historial/1
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+###
+
+### Reporte de viajes por estado
+GET {{base}}/api/viajes/reporte
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+###
+
+### Reporte por rango de fechas
+GET {{base}}/api/viajes/reporte?desde=2025-06-01&hasta=2025-06-30
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+###
+
+### Iniciar viaje
+POST {{base}}/api/viajes/iniciar
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+{
+    "programacion_viaje_id": 1,
+    "novedad": "Viaje iniciado sin novedades"
+}
+
+###
+
+### Actualizar estado del viaje
+POST {{base}}/api/viajes/estado
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+{
+    "programacion_viaje_id": 1,
+    "estado": "retrasado",
+    "novedad": "Retraso por cierre vial en la vía"
+}
+
+###
+
+### Registrar novedad
+POST {{base}}/api/viajes/novedad
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+{
+    "programacion_viaje_id": 1,
+    "novedad": "El conductor reporta tráfico en la vía"
+}
+
+###
+
+### Finalizar viaje
+POST {{base}}/api/viajes/finalizar
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+{
+    "programacion_viaje_id": 1,
+    "novedad": "Viaje finalizado exitosamente"
+}

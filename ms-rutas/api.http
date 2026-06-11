@@ -1,0 +1,133 @@
+### Variables
+@base = http://127.0.0.1:8004
+
+###############################################
+# RUTAS
+###############################################
+
+### Health check
+GET {{base}}/api/rutas/health
+Content-Type: application/json
+
+###
+
+### Listar todas las rutas
+GET {{base}}/api/rutas
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+###
+
+### Buscar ruta por ciudad
+GET {{base}}/api/rutas?ciudad=Bogota
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+###
+
+### Obtener ruta por ID
+GET {{base}}/api/rutas/1
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+###
+
+### Crear ruta
+POST {{base}}/api/rutas
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+{
+    "ciudad_origen": "Bogota",
+    "ciudad_destino": "Medellin",
+    "distancia": 415,
+    "tiempo_estimado": "8 horas",
+    "observaciones": "Ruta por la autopista Medellín"
+}
+
+###
+
+### Actualizar ruta
+PUT {{base}}/api/rutas/1
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+{
+    "distancia": 420,
+    "tiempo_estimado": "9 horas",
+    "observaciones": "Ruta actualizada"
+}
+
+###
+
+### Eliminar ruta
+DELETE {{base}}/api/rutas/1
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+###############################################
+# PROGRAMACIONES
+###############################################
+
+### Listar todas las programaciones
+GET {{base}}/api/programaciones
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+###
+
+### Filtrar por conductor
+GET {{base}}/api/programaciones?conductor_id=1
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+###
+
+### Filtrar por estado
+GET {{base}}/api/programaciones?estado=programado
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+###
+
+### Filtrar por fecha de salida
+GET {{base}}/api/programaciones?fecha_salida=2025-06-15
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+###
+
+### Obtener programación por ID
+GET {{base}}/api/programaciones/1
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+###
+
+### Crear programación
+POST {{base}}/api/programaciones
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+{
+    "conductor_id": 1,
+    "vehiculo_id": 1,
+    "ruta_id": 1,
+    "fecha_salida": "2025-06-15",
+    "hora_salida": "06:00:00",
+    "fecha_estimada_llegada": "2025-06-15",
+    "observaciones": "Viaje de prueba"
+}
+
+###
+
+### Actualizar programación
+PUT {{base}}/api/programaciones/1
+Content-Type: application/json
+Authorization: Bearer TU_TOKEN_AQUI
+
+{
+    "fecha_salida": "2025-06-16",
+    "hora_salida": "07:00:00",
+    "observaciones": "Reprogramado"
+}
